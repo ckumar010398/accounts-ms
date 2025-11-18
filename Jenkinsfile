@@ -1,10 +1,6 @@
 pipeline {
   agent any
 
-  tools {
-    maven 'Maven 3.9.6'  // Configure in Jenkins Global Tool Configuration
-  }
-
   environment {
     DOCKER_IMAGE = "03chandan/accounts-ms:${BUILD_NUMBER}"
     SONAR_URL = "http://localhost:9000"
