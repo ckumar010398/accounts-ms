@@ -1,6 +1,6 @@
-package com.bank.accounts.api;
+package com.bank.accounts.repository;
 
-import com.bank.accounts.entity.Account;
+import com.bank.accounts.entity.AccountsEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +19,14 @@ public class AccountRepositoryTest {
     private TestEntityManager entityManager;
 
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountsRepository accountRepository;
 
-    private Account testAccount;
+    private AccountsEntity testAccount;
 
     @BeforeEach
     public void setUp() {
-        testAccount = new Account();
-        testAccount.setAccountNumber("1234567890");
+        testAccount = new AccountsEntity();
+        testAccount.setAccountNumber(1234567890L);
         testAccount.setAccountType("SAVINGS");
         testAccount.setCustomerId(1L);
         testAccount.setBranchAddress("Main Branch");
@@ -35,21 +35,21 @@ public class AccountRepositoryTest {
     @Test
     public void whenSaveAccount_thenReturnSavedAccount() {
         // Act
-        Account savedAccount = accountRepository.save(testAccount);
+        AccountsEntity savedAccount = accountRepository.save(testAccount);
         
         // Assert
         assertThat(savedAccount).isNotNull();
-        assertThat(savedAccount.getAccountId()).isNotNull();
-        assertThat(savedAccount.getAccountNumber()).isEqualTo("1234567890");
+        assertThat(savedAccount.getAccountNumber()).isNotNull();
+        assertThat(savedAccount.getAccountNumber()).isEqualTo(1234567890L);
     }
 
     @Test
     public void whenFindById_thenReturnAccount() {
         // Arrange
-        Account saved = entityManager.persistAndFlush(testAccount);
+        AccountsEntity saved = entityManager.persistAndFlush(testAccount);
         
         // Act
-        Optional<Account> found = accountRepository.findById(saved.getAccountId());
+        Optional<AccountsEntity> found = accountRepository.findById(saved.getAccountNumber());
         
         // Assert
         assertThat(found).isPresent();
@@ -62,7 +62,7 @@ public class AccountRepositoryTest {
         entityManager.persistAndFlush(testAccount);
         
         // Act
-        Optional<Account> found = accountRepository.findByCustomerId(1L);
+        Optional<AccountsEntity> found = accountRepository.findByCustomerId(1L);
         
         // Assert
         assertThat(found).isPresent();
@@ -72,8 +72,8 @@ public class AccountRepositoryTest {
     @Test
     public void whenFindAll_thenReturnAccountList() {
         // Arrange
-        Account account2 = new Account();
-        account2.setAccountNumber("0987654321");
+        AccountsEntity account2 = new AccountsEntity();
+        account2.setAccountNumber(987654321L);
         account2.setAccountType("CURRENT");
         account2.setCustomerId(2L);
         
@@ -81,7 +81,7 @@ public class AccountRepositoryTest {
         entityManager.persistAndFlush(account2);
         
         // Act
-        List<Account> accounts = accountRepository.findAll();
+        List<AccountsEntity> accounts = accountRepository.findAll();
         
         // Assert
         assertThat(accounts).hasSize(2);
@@ -90,25 +90,25 @@ public class AccountRepositoryTest {
     @Test
     public void whenDeleteAccount_thenAccountIsDeleted() {
         // Arrange
-        Account saved = entityManager.persistAndFlush(testAccount);
-        Long accountId = saved.getAccountId();
+        AccountsEntity saved = entityManager.persistAndFlush(testAccount);
+        Long accountId = saved.getAccountNumber();
         
         // Act
         accountRepository.deleteById(accountId);
         
         // Assert
-        Optional<Account> deleted = accountRepository.findById(accountId);
+        Optional<AccountsEntity> deleted = accountRepository.findById(accountId);
         assertThat(deleted).isEmpty();
     }
 
     @Test
     public void whenUpdateAccount_thenReturnUpdatedAccount() {
         // Arrange
-        Account saved = entityManager.persistAndFlush(testAccount);
+        AccountsEntity saved = entityManager.persistAndFlush(testAccount);
         
         // Act
         saved.setAccountType("CURRENT");
-        Account updated = accountRepository.save(saved);
+        AccountsEntity updated = accountRepository.save(saved);
         
         // Assert
         assertThat(updated.getAccountType()).isEqualTo("CURRENT");

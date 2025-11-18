@@ -30,16 +30,16 @@ import org.springframework.web.bind.annotation.*;
 public class AccountsApi {
 
     @Autowired
-    private IAccountsService iAccountsService;
+    IAccountsService iAccountsService;
 
     @Value("${build.info}")
-    private String buildInfo;
+    String buildInfo;
 
     @Autowired
-    private Environment environment;
+    Environment environment;
 
     @Autowired
-    private ContactInfoDto contactInfoDto;
+    ContactInfoDto contactInfoDto;
 
     @Operation(summary = "Create Account REST API", description = "REST API to create new Customer &  Account inside EazyBank")
     @ApiResponses({
@@ -63,7 +63,7 @@ public class AccountsApi {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))})
     @GetMapping("/fetch")
     public ResponseEntity<CustomerDto> fetchAccounts(@RequestParam
-                                                         @Pattern(regexp = "^$|\\d{10}", message = "Mobile number must be of digits.") String mobileNumber){
+                                                         @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be of digits.") String mobileNumber){
         CustomerDto customerDto = iAccountsService.fetchAccount(mobileNumber);
 
         return ResponseEntity.status(HttpStatus.OK).body(customerDto);
@@ -102,7 +102,7 @@ public class AccountsApi {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))})
     @DeleteMapping("/delete")
     public ResponseEntity<ResponseDto> deleteAccountDetails(@RequestParam
-                                                            @Pattern(regexp="(^$|\\d{10})",message = "Mobile number must be 10 digits")
+                                                            @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
                                                             String mobileNumber) {
         boolean isDeleted = iAccountsService.deleteAccount(mobileNumber);
         if(isDeleted) {
