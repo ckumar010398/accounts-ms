@@ -63,8 +63,8 @@ pipeline {
           bat '''
             git config user.email "ckumar010398@gmail.com"
             git config user.name "Chandan K"
-            powershell -Command "(Get-Content deployment.yml) -replace 'replaceImageTag', '%BUILD_NUMBER%' | Set-Content deployment.yml"
-            git add deployment.yml
+            powershell -Command "(Get-Content  k8s/deployment.yml) -replace 'replaceImageTag', '%BUILD_NUMBER%' | Set-Content  k8s/deployment.yml"
+            git add k8s/deployment.yml
             git commit -m "Update deployment image to version %BUILD_NUMBER%"
             git push https://%GITHUB_TOKEN%@github.com/%GIT_USER_NAME%/%GIT_REPO_NAME% HEAD:master
           '''
