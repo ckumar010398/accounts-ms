@@ -1,25 +1,25 @@
 package com.bank.accounts.mapper;
 
 import com.bank.accounts.dto.CustomerDto;
-import com.bank.accounts.entity.CustomerEntity;
+import com.bank.accounts.entity.Customer;
 
 public class CustomerMapper {
 
-    public static CustomerDto mapToCustomerDto(CustomerEntity customerEntity, CustomerDto customerDto){
+    public static CustomerDto mapToCustomerDto(Customer customer, CustomerDto customerDto){
 
-        customerDto.setName(customerEntity.getName());
-        customerDto.setEmail(customerEntity.getEmail());
-        customerDto.setMobileNumber(customerEntity.getMobileNumber());
+        customerDto.setName(customer.getName());
+        customerDto.setEmail(customer.getEmail());
+        customerDto.setMobileNumber(customer.getMobileNumber());
 
         return customerDto;
     }
 
-    public static CustomerEntity mapToCustomerEntity(CustomerDto customerDto, CustomerEntity customerEntity ){
+    public static Customer mapToCustomerEntity(CustomerDto customerDto, Customer customer){
 
-        customerEntity.setName(customerDto.getName());
-        customerEntity.setEmail(customerDto.getEmail());
-        customerEntity.setMobileNumber(customerDto.getMobileNumber());
+        customer.setName(customerDto.getName());
+        customer.setEmail(customerDto.getEmail());
+        customer.setMobileNumber(customerDto.getMobileNumber());
 
-        return customerEntity;
+        return customer;
     }
 }

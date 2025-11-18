@@ -9,7 +9,8 @@ import lombok.Data;
 @Schema(name = "Response", description = "Schema holds sucessfull reponse information")
 public class ResponseDto {
 
-    @Schema(description = "Status code in the response")
+
+	@Schema(description = "Status code in the response")
     private String statusCode;
 
     @Schema(description = "Status message in the response")

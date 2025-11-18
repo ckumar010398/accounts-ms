@@ -3,8 +3,8 @@ package com.bank.accounts.service.impl;
 import com.bank.accounts.constants.AccountsConstants;
 import com.bank.accounts.dto.AccountsDto;
 import com.bank.accounts.dto.CustomerDto;
-import com.bank.accounts.entity.AccountsEntity;
-import com.bank.accounts.entity.CustomerEntity;
+import com.bank.accounts.entity.Accounts;
+import com.bank.accounts.entity.Customer;
 import com.bank.accounts.exception.CustomerAlreadyExistsException;
 import com.bank.accounts.exception.ResourceNotFoundException;
 import com.bank.accounts.mapper.AccountsMapper;
@@ -28,21 +28,21 @@ public class AccountsServiceImpl implements IAccountsService {
     @Override
     public void createAccount(CustomerDto customerDto) {
 
-       CustomerEntity customer = CustomerMapper.mapToCustomerEntity(customerDto, new CustomerEntity());
+       Customer customer = CustomerMapper.mapToCustomerEntity(customerDto, new Customer());
 
-        Optional<CustomerEntity> optionalCustomerEntity = customerRepository.findByMobileNumber(customerDto.getMobileNumber());
+        Optional<Customer> optionalCustomerEntity = customerRepository.findByMobileNumber(customerDto.getMobileNumber());
         if(optionalCustomerEntity.isPresent()){
             throw new CustomerAlreadyExistsException("Customer already registered with given mobileNumber "+customerDto.getMobileNumber());
         }
 
-        CustomerEntity savedCustomer = customerRepository.save(customer);
+        Customer savedCustomer = customerRepository.save(customer);
         accountsRepository.save(createNewAccount(savedCustomer));
 
     }
 
-    private AccountsEntity createNewAccount(CustomerEntity savedCustomer) {
+    private Accounts createNewAccount(Customer savedCustomer) {
 
-        AccountsEntity  accounts = new AccountsEntity();
+        Accounts accounts = new Accounts();
 
         Random random = new Random();
 
@@ -60,10 +60,10 @@ public class AccountsServiceImpl implements IAccountsService {
     @Override
     public CustomerDto fetchAccount(String mobileNumber) {
 
-        CustomerEntity customer = customerRepository.findByMobileNumber(mobileNumber)
+        Customer customer = customerRepository.findByMobileNumber(mobileNumber)
                 .orElseThrow( () -> new ResourceNotFoundException("Customer", "mobileNumber", mobileNumber));
 
-        AccountsEntity accounts = accountsRepository.findByCustomerId(customer.getCustomerId())
+        Accounts accounts = accountsRepository.findByCustomerId(customer.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Accounts", "customerId", customer.getCustomerId().toString()));
 
         CustomerDto customerDto = CustomerMapper.mapToCustomerDto(customer,new CustomerDto());
@@ -78,7 +78,7 @@ public class AccountsServiceImpl implements IAccountsService {
         AccountsDto accountsDto = customerDto.getAccountsDto();
 
         if(null!=accountsDto){
-            AccountsEntity accounts = accountsRepository.findById(accountsDto.getAccountNumber())
+            Accounts accounts = accountsRepository.findById(accountsDto.getAccountNumber())
                     .orElseThrow(() -> new ResourceNotFoundException("Accounts", "customerId", accountsDto.getAccountNumber().toString()));
 
             AccountsMapper.mapToAccountsEntity(accountsDto,accounts);
@@ -86,7 +86,7 @@ public class AccountsServiceImpl implements IAccountsService {
 
             Long customerId = accounts.getCustomerId();
 
-            CustomerEntity customer = customerRepository.findById(customerId)
+            Customer customer = customerRepository.findById(customerId)
                     .orElseThrow(() -> new ResourceNotFoundException("Customer", "customerId", customerId.toString()));
 
             CustomerMapper.mapToCustomerEntity(customerDto,customer);
@@ -99,7 +99,7 @@ public class AccountsServiceImpl implements IAccountsService {
     @Override
     public boolean deleteAccount(String mobileNumber) {
 
-        CustomerEntity customer = customerRepository.findByMobileNumber(mobileNumber)
+        Customer customer = customerRepository.findByMobileNumber(mobileNumber)
                 .orElseThrow( () -> new ResourceNotFoundException("Customer", "mobileNumber", mobileNumber));
 
         accountsRepository.deleteByCustomerId(customer.getCustomerId());

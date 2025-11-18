@@ -1,25 +1,25 @@
 package com.bank.accounts.mapper;
 
 import com.bank.accounts.dto.AccountsDto;
-import com.bank.accounts.entity.AccountsEntity;
+import com.bank.accounts.entity.Accounts;
 
 public class AccountsMapper {
 
-    public static AccountsDto mapToAccountsDto(AccountsEntity accountsEntity, AccountsDto accountsDto){
+    public static AccountsDto mapToAccountsDto(Accounts accounts, AccountsDto accountsDto){
 
-        accountsDto.setAccountNumber(accountsEntity.getAccountNumber());
-        accountsDto.setAccountType(accountsEntity.getAccountType());
-        accountsDto.setBranchAddress(accountsEntity.getBranchAddress());
+        accountsDto.setAccountNumber(accounts.getAccountNumber());
+        accountsDto.setAccountType(accounts.getAccountType());
+        accountsDto.setBranchAddress(accounts.getBranchAddress());
 
         return accountsDto;
     }
 
-    public static AccountsEntity mapToAccountsEntity(AccountsDto accountsDto, AccountsEntity accountsEntity){
+    public static Accounts mapToAccountsEntity(AccountsDto accountsDto, Accounts accounts){
 
-        accountsEntity.setAccountNumber(accountsDto.getAccountNumber());
-        accountsEntity.setAccountType(accountsDto.getAccountType());
-        accountsEntity.setBranchAddress(accountsDto.getBranchAddress());
+        accounts.setAccountNumber(accountsDto.getAccountNumber());
+        accounts.setAccountType(accountsDto.getAccountType());
+        accounts.setBranchAddress(accountsDto.getBranchAddress());
 
-        return accountsEntity;
+        return accounts;
     }
 }

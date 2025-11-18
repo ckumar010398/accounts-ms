@@ -1,33 +1,35 @@
 server:
-  port: 8080
+  port: 0
 
 spring:
-  profile:
-    active: test
   application:
-    name: accounts
+    name: accounts-test
   datasource:
     url: jdbc:h2:mem:testdb
-    driverClassName: org.h2.Driver
+    driver-class-name: org.h2.Driver
     username: sa
     password: ''
   h2:
     console:
-      enabled: true
+      enabled: false
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: create-drop
+    show-sql: false
 
 build:
-  info : v1
+  info: v1-test
 
 contact-info:
-  message: "Welcome to Bank accounts related local APIs "
+  message: "Welcome to Bank accounts related local APIs"
   contactDetails:
     name: "Chandan - Developer"
     email: "chandan03@zohomail.in"
   onCallSupport:
-    - (555) 555-1234
-    - (555) 523-1345
+    - "(555) 555-1234"
+    - "(555) 523-1345"
+
+logging:
+  level:
+    com.bank.accounts: DEBUG
