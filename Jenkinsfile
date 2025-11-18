@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+  tools {
+    maven 'Maven 3.9.6'
+  }
+
   environment {
     DOCKER_IMAGE = "03chandan/accounts-ms:${BUILD_NUMBER}"
     SONAR_URL = "http://localhost:9000"
@@ -17,19 +21,18 @@ pipeline {
     stage('Build and Test') {
       steps {
         echo 'Building and testing with Maven...'
-        sh 'mvn clean package -DskipTests=false'
+        bat 'mvn clean package -DskipTests=false'
       }
     }
 
     stage('Static Code Analysis') {
       steps {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-          sh '''
-            mvn sonar:sonar \
-              -Dsonar.login=$SONAR_AUTH_TOKEN \
-              -Dsonar.host.url=${SONAR_URL} \
-              -Dsonar.projectKey=accounts-ms \
-              -Dsonar.projectName=accounts-ms
+          bat '''
+            mvn sonar:sonar ^
+              -Dsonar.login=%SONAR_AUTH_TOKEN% ^
+              -Dsonar.host.url=%SONAR_URL% ^
+              -Dsonar.projectKey=accounts-ms
           '''
         }
       }
@@ -38,7 +41,7 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         echo 'Building Docker image...'
-        sh 'docker build -t ${DOCKER_IMAGE} .'
+        bat 'docker build -t %DOCKER_IMAGE% .'
       }
     }
 
@@ -61,13 +64,13 @@ pipeline {
       }
       steps {
         withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-          sh '''
+          bat '''
             git config user.email "ckumar010398@gmail.com"
             git config user.name "Chandan K"
-            sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" deployment.yml
+            powershell -Command "(Get-Content deployment.yml) -replace 'replaceImageTag', '%BUILD_NUMBER%' | Set-Content deployment.yml"
             git add deployment.yml
-            git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
+            git commit -m "Update deployment image to version %BUILD_NUMBER%"
+            git push https://%GITHUB_TOKEN%@github.com/%GIT_USER_NAME%/%GIT_REPO_NAME% HEAD:master
           '''
         }
       }
@@ -76,7 +79,7 @@ pipeline {
 
   post {
     always {
-      junit 'target/surefire-reports/*.xml'
+      junit 'target\\surefire-reports\\*.xml'
       cleanWs()
     }
     success {
