@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: accounts
-          image: 03chandan/accounts-ms:16
+          image: 03chandan/accounts-ms:5
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
