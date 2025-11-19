@@ -1,6 +1,6 @@
 pipeline {
   agent any
-
+  
   environment {
     DOCKER_IMAGE = "03chandan/accounts-ms:${BUILD_NUMBER}"
     SONAR_URL = "http://localhost:9000"
@@ -23,12 +23,14 @@ pipeline {
 
     stage('Static Code Analysis') {
       steps {
+        echo 'Running SonarQube analysis...'
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
           bat '''
             mvn sonar:sonar ^
               -Dsonar.login=%SONAR_AUTH_TOKEN% ^
               -Dsonar.host.url=%SONAR_URL% ^
-              -Dsonar.projectKey=accounts-ms
+              -Dsonar.projectKey=accounts-ms ^
+              -Dsonar.projectName=accounts-ms
           '''
         }
       }
@@ -38,17 +40,24 @@ pipeline {
       steps {
         echo 'Building Docker image...'
         bat 'docker build -t %DOCKER_IMAGE% .'
+        bat 'docker tag %DOCKER_IMAGE% 03chandan/accounts-ms:latest'
       }
     }
 
     stage('Push Docker Image') {
       steps {
         echo 'Pushing Docker image to registry...'
-        script {
-          docker.withRegistry('https://index.docker.io/v1/', "docker-cred") {
-            docker.image("${DOCKER_IMAGE}").push()
-            docker.image("${DOCKER_IMAGE}").push('latest')
-          }
+        withCredentials([usernamePassword(
+          credentialsId: 'docker-cred',
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
+          bat '''
+            echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+            docker push %DOCKER_IMAGE%
+            docker push 03chandan/accounts-ms:latest
+            docker logout
+          '''
         }
       }
     }
@@ -59,12 +68,13 @@ pipeline {
         GIT_USER_NAME = "ckumar010398"
       }
       steps {
+        echo 'Updating Kubernetes deployment manifest...'
         withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
           bat '''
             git config user.email "ckumar010398@gmail.com"
             git config user.name "Chandan K"
-            powershell -Command "(Get-Content  k8s/deployment.yml) -replace 'replaceImageTag', '%BUILD_NUMBER%' | Set-Content  k8s/deployment.yml"
-            git add k8s/deployment.yml
+            powershell -Command "(Get-Content k8s\\deployment.yml) -replace '03chandan/accounts-ms:.*', '03chandan/accounts-ms:%BUILD_NUMBER%' | Set-Content k8s\\deployment.yml"
+            git add k8s\\deployment.yml
             git commit -m "Update deployment image to version %BUILD_NUMBER%"
             git push https://%GITHUB_TOKEN%@github.com/%GIT_USER_NAME%/%GIT_REPO_NAME% HEAD:master
           '''
@@ -75,14 +85,15 @@ pipeline {
 
   post {
     always {
-      junit 'target\\surefire-reports\\*.xml'
+      junit allowEmptyResults: true, testResults: 'target\\surefire-reports\\*.xml'
       cleanWs()
     }
     success {
-      echo 'Pipeline completed successfully!'
+      echo '✅ Pipeline completed successfully!'
+      echo "Docker image pushed: ${DOCKER_IMAGE}"
     }
     failure {
-      echo 'Pipeline failed!'
+      echo '❌ Pipeline failed! Check logs above.'
     }
   }
 }
