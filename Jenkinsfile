@@ -1,6 +1,6 @@
 pipeline {
   agent any
-  
+
   environment {
     DOCKER_IMAGE = "03chandan/accounts-ms:${BUILD_NUMBER}"
     SONAR_URL = "http://localhost:9000"
@@ -35,32 +35,31 @@ pipeline {
         }
       }
     }
-
-    stage('Build Docker Image') {
-      steps {
-        echo 'Building Docker image...'
-        bat 'docker build -t %DOCKER_IMAGE% .'
-        bat 'docker tag %DOCKER_IMAGE% 03chandan/accounts-ms:latest'
-      }
-    }
-
-    stage('Push Docker Image') {
-      steps {
-        echo 'Pushing Docker image to registry...'
-        withCredentials([usernamePassword(
-          credentialsId: 'docker-cred',
-          usernameVariable: 'DOCKER_USER',
-          passwordVariable: 'DOCKER_PASS'
-        )]) {
-          bat '''
-            echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-            docker push %DOCKER_IMAGE%
-            docker push 03chandan/accounts-ms:latest
-            docker logout
-          '''
+      stages {
+        stage('Build Docker Image') {
+          steps {
+            bat '''
+              docker build -t %DOCKER_IMAGE% .
+              docker tag %DOCKER_IMAGE% 03chandan/accounts-ms:latest
+            '''
+          }
         }
-      }
-    }
+        stage('Push Docker Image') {
+          steps {
+            withCredentials([usernamePassword(
+              credentialsId: 'docker-cred',
+              usernameVariable: 'DOCKER_USER',
+              passwordVariable: 'DOCKER_PASS'
+            )]) {
+              bat '''
+                docker login -u %DOCKER_USER% -p %DOCKER_PASS%
+                docker push %DOCKER_IMAGE%
+                docker push 03chandan/accounts-ms:latest
+                docker logout
+              '''
+            }
+          }
+        }
 
     stage('Update Deployment File') {
       environment {

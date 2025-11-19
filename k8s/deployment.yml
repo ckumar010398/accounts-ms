@@ -4,6 +4,15 @@ metadata:
   name: accounts-ms
   labels:
     app: accounts-ms
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "500m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"
+
 spec:
   replicas: 1
   selector:
@@ -28,7 +37,7 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 30
+            initialDelaySeconds: 120
             periodSeconds: 10
           readinessProbe:
             httpGet:

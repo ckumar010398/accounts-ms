@@ -31,3 +31,18 @@ contact-info:
   onCallSupport:
     - (555) 555-1234
     - (555) 523-1345
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,readiness,liveness
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    readiness:
+      enabled: true
+    liveness:
+      enabled: true
