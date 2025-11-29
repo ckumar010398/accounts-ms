@@ -64,6 +64,7 @@ public class AccountsApi {
     @GetMapping("/fetch")
     public ResponseEntity<CustomerDto> fetchAccounts(@RequestParam
                                                          @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be of digits.") String mobileNumber){
+
         CustomerDto customerDto = iAccountsService.fetchAccount(mobileNumber);
 
         return ResponseEntity.status(HttpStatus.OK).body(customerDto);
